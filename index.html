@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday!</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,700;1,900&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Caveat',cursive;background:radial-gradient(ellipse at 50% 30%,#4a1d4f 0%,#1f0a26 70%);}
+  .display{font-family:'Fraunces',serif;font-style:italic}
+  .flame{transform-origin:50% 100%;animation:flicker .18s infinite alternate;filter:drop-shadow(0 0 14px #ffb347)}
+  @keyframes flicker{from{transform:scale(1,1) rotate(-2deg)}to{transform:scale(.92,1.08) rotate(2deg)}}
+  .glow{animation:glow 1.6s ease-in-out infinite alternate}
+  @keyframes glow{from{opacity:.5}to{opacity:1}}
+  .smoke{animation:smoke 2.5s ease-out forwards}
+  @keyframes smoke{0%{opacity:.8;transform:translateY(0) scale(.6)}100%{opacity:0;transform:translateY(-90px) scale(2.4)}}
+  .pop{animation:pop .9s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes pop{from{opacity:0;transform:scale(.3) translateY(30px)}to{opacity:1;transform:none}}
+  .line{opacity:0;transform:translateY(10px);transition:all .8s ease}
+  .line.show{opacity:1;transform:none}
+  .confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:50;animation:fall linear forwards;pointer-events:none}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  .balloon{position:fixed;bottom:-140px;width:60px;height:76px;border-radius:50% 50% 48% 48%;z-index:40;animation:rise linear forwards;pointer-events:none}
+  .balloon::after{content:"";position:absolute;left:50%;top:100%;width:1.5px;height:50px;background:#ffffff80}
+  @keyframes rise{to{transform:translateY(-130vh) translateX(var(--dx))}}
+  @media (prefers-reduced-motion:reduce){.flame,.glow{animation:none}}
+</style>
+</head>
+<body class="min-h-screen text-rose-50 overflow-x-hidden flex flex-col items-center justify-center px-5 py-10">
+
+<!-- STAGE 1: cake + candle -->
+<section id="cakeStage" class="text-center">
+  <h1 class="display text-4xl sm:text-6xl font-black text-amber-200 mb-2">Make a wish…</h1>
+  <p class="text-2xl text-rose-200 mb-10">then blow out the candle 🎂</p>
+
+  <div class="relative mx-auto w-72 sm:w-80 select-none">
+    <!-- candle -->
+    <div class="relative mx-auto w-4 h-20 -mb-1 cursor-pointer" id="candle" title="Tap to blow">
+      <div id="halo" class="glow absolute -top-16 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full bg-amber-300/30 blur-2xl"></div>
+      <svg id="flame" class="flame absolute -top-9 left-1/2 -translate-x-1/2" width="26" height="40" viewBox="0 0 26 40">
+        <path d="M13 0C20 12 26 18 26 27a13 13 0 0 1-26 0C0 20 8 14 13 0z" fill="#ff9d2e"/>
+        <path d="M13 14c4 6 7 9 7 14a7 7 0 0 1-14 0c0-5 3-8 7-14z" fill="#ffe08a"/>
+      </svg>
+      <div id="smoke" class="hidden absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white/50 blur-md smoke"></div>
+      <div class="absolute inset-0 rounded-t-sm bg-gradient-to-r from-rose-200 via-white to-rose-200"></div>
+      <div class="absolute -top-0.5 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-stone-800"></div>
+    </div>
+    <!-- cake -->
+    <div class="relative h-14 rounded-t-3xl bg-gradient-to-b from-pink-300 to-pink-400 shadow-lg">
+      <div class="absolute inset-x-0 top-0 h-5 rounded-t-3xl bg-white/90 flex justify-around overflow-hidden">
+        <span class="w-6 h-8 bg-white rounded-b-full -mt-1"></span><span class="w-5 h-10 bg-white rounded-b-full -mt-1"></span>
+        <span class="w-6 h-7 bg-white rounded-b-full -mt-1"></span><span class="w-5 h-9 bg-white rounded-b-full -mt-1"></span>
+        <span class="w-6 h-8 bg-white rounded-b-full -mt-1"></span>
+      </div>
+    </div>
+    <div class="h-16 w-[112%] -ml-[6%] rounded-b-2xl bg-gradient-to-b from-amber-200 to-amber-400 shadow-2xl flex items-center justify-around text-2xl">
+      <span>🍓</span><span>🍒</span><span>🍓</span><span>🍒</span><span>🍓</span>
+    </div>
+    <div class="h-3 w-[130%] -ml-[15%] rounded-full bg-rose-950/70 -mt-1"></div>
+  </div>
+
+  <button id="blowBtn" class="mt-12 px-8 py-3 rounded-full bg-amber-300 text-purple-950 text-3xl font-bold shadow-lg hover:bg-amber-200 active:scale-95 transition focus:outline-none focus-visible:ring-4 ring-amber-200">
+    Blow the candle 💨
+  </button>
+  <p class="mt-4 text-lg text-rose-300/80">Tap the button — or allow the mic and really blow!</p>
+</section>
+
+<!-- STAGE 2: birthday message -->
+<section id="wishStage" class="hidden text-center max-w-xl w-full">
+  <h1 class="pop display text-5xl sm:text-7xl font-black text-amber-200 leading-tight">
+    Happy Birthday,<br><span id="herName" class="text-pink-300">Beautiful</span>! 🎉
+  </h1>
+
+  <div class="mt-8 rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-7 sm:p-9 text-2xl sm:text-3xl leading-snug space-y-4 shadow-2xl">
+    <p class="line">You are the best person I have ever met. 💖</p>
+    <p class="line">Every moment with you turns into a memory I never want to forget.</p>
+    <p class="line">Your smile makes ordinary days feel special, and your heart makes the world a kinder place.</p>
+    <p class="line">I’m so lucky to have you in my life.</p>
+    <p class="line text-amber-200 font-bold">May this year bring you all the happiness you give to everyone else. ✨</p>
+    <p class="line text-pink-300 text-3xl sm:text-4xl font-bold pt-2">With all my love, ❤️</p>
+  </div>
+
+  <button id="again" class="mt-8 text-xl underline underline-offset-4 text-rose-200 hover:text-white">Light the candle again 🕯️</button>
+</section>
+
+<script>
+  // ✏️ Change these two:
+  const HER_NAME = "Wadiyat";   // her name
+  document.getElementById('herName').textContent = HER_NAME;
+
+  const $ = id => document.getElementById(id);
+  let blown = false, micStream = null, ctx = null;
+
+  function celebrate(){
+    const colors = ['#ff6b9d','#ffd166','#06d6a0','#74c0fc','#c77dff','#fff'];
+    for (let i=0;i<110;i++){
+      const c=document.createElement('div'); c.className='confetti';
+      c.style.left=Math.random()*100+'vw'; c.style.background=colors[i%colors.length];
+      c.style.animationDuration=(2.5+Math.random()*3)+'s'; c.style.animationDelay=Math.random()*1.2+'s';
+      c.style.borderRadius=Math.random()>.5?'50%':'2px';
+      document.body.appendChild(c); setTimeout(()=>c.remove(),7500);
+    }
+    for (let i=0;i<14;i++){
+      const b=document.createElement('div'); b.className='balloon';
+      b.style.left=(Math.random()*92)+'vw'; b.style.background=colors[i%5];
+      b.style.setProperty('--dx',(Math.random()*80-40)+'px');
+      b.style.animationDuration=(6+Math.random()*4)+'s'; b.style.animationDelay=Math.random()*2+'s';
+      document.body.appendChild(b); setTimeout(()=>b.remove(),13000);
+    }
+  }
+
+  function blow(){
+    if (blown) return; blown = true;
+    stopMic();
+    $('flame').style.display='none'; $('halo').style.display='none';
+    $('smoke').classList.remove('hidden');
+    $('blowBtn').disabled = true;
+    setTimeout(()=>{
+      $('cakeStage').classList.add('hidden');
+      $('wishStage').classList.remove('hidden');
+      celebrate();
+      document.querySelectorAll('.line').forEach((el,i)=>setTimeout(()=>el.classList.add('show'),900+i*1100));
+    },1400);
+  }
+
+  function reset(){
+    blown=false;
+    document.querySelectorAll('.line').forEach(l=>l.classList.remove('show'));
+    $('wishStage').classList.add('hidden'); $('cakeStage').classList.remove('hidden');
+    $('flame').style.display=''; $('halo').style.display='';
+    $('smoke').classList.add('hidden'); $('blowBtn').disabled=false;
+  }
+
+  // Real blowing via microphone (optional)
+  async function startMic(){
+    try{
+      micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+      ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const an = ctx.createAnalyser(); an.fftSize=256;
+      ctx.createMediaStreamSource(micStream).connect(an);
+      const data = new Uint8Array(an.frequencyBinCount);
+      let loud = 0;
+      (function loop(){
+        if (!micStream) return;
+        an.getByteFrequencyData(data);
+        const avg = data.reduce((a,b)=>a+b,0)/data.length;
+        loud = avg > 60 ? loud+1 : 0;
+        if (loud > 8) return blow();
+        requestAnimationFrame(loop);
+      })();
+    }catch(e){ /* mic denied – button still works */ }
+  }
+  function stopMic(){
+    if (micStream){ micStream.getTracks().forEach(t=>t.stop()); micStream=null; }
+    if (ctx){ ctx.close(); ctx=null; }
+  }
+
+  $('blowBtn').addEventListener('click', blow);
+  $('candle').addEventListener('click', blow);
+  $('again').addEventListener('click', reset);
+  startMic();
+</script>
+</body>
+</html>
